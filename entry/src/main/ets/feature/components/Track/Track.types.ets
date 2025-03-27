@@ -2,7 +2,6 @@ import { ITrack } from "../../models/Track";
 
 interface ITrackCallbacks {
   onTrackSelected?: (track: ITrack) => void;
-  onPlayPause?: () => void;
 }
 
 export class TrackCallbacks implements ITrackCallbacks {
@@ -11,6 +10,5 @@ export class TrackCallbacks implements ITrackCallbacks {
 
   constructor(params: ITrackCallbacks) {
     this.onTrackSelected = params.onTrackSelected;
-    this.onPlayPause = params.onPlayPause;
   }
 }

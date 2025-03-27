@@ -1,3 +1,7 @@
+import { media } from "@kit.MediaKit";
+import { BusinessError } from "@kit.BasicServicesKit";
+import { audio } from "@kit.AudioKit";
+
 import { Header, HeaderCallbacks } from "../feature/components/Header";
 import { TrackCallbacks, TrackItem } from "../feature/components/Track";
 import { ITrack } from "../feature/models/Track";
@@ -17,7 +21,6 @@ struct PlaylistPage {
       "duration": "3:58",
       "url": "http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8",
       "albumArt": "app.media.skate_album",
-
     },
     {
       "id": "2",
@@ -47,21 +50,77 @@ struct PlaylistPage {
   });
 
   private _trackCallbacks = new TrackCallbacks({
-    onTrackSelected: (track: ITrack) => {
-      if (this.currentTrack?.id === track.id) {
-        this.currentTrack = undefined;
-        this.isPlaying = false;
-      } else {
-        this.currentTrack = track;
-        this.isPlaying = true;
+    onTrackSelected: async (track: ITrack) => {
+      if (this._avPlayer) {
+        if (this.currentTrack?.id === track.id) {
+          this.currentTrack = undefined;
+          this.isPlaying = false;
+          await this._avPlayer.reset();
+        } else {
+          this.currentTrack = track;
+          this.isPlaying = true;
+          this._avPlayer.url = track.url;
+          await this._avPlayer.play();
+        }
       }
     },
-    onPlayPause: () => {
-    }
   });
 
-  aboutToAppear() {
+  private _avPlayer?: media.AVPlayer;
 
+  async aboutToAppear(): Promise<void> {
+    this._avPlayer = await media.createAVPlayer();
+    this.setAVPlayerCallback(this._avPlayer);
+  }
+
+  setAVPlayerCallback(avPlayer: media.AVPlayer) {
+    avPlayer.on('seekDone', (seekDoneTime: number) => {
+      console.info(`AVPlayer seek succeeded, seek time is ${seekDoneTime}`);
+    });
+
+    avPlayer.on('error', (err: BusinessError) => {
+      console.error(`Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`);
+      avPlayer.reset();
+    });
+
+    avPlayer.on('stateChange', async (state: string, reason: media.StateChangeReason) => {
+      switch (state) {
+        case 'idle':
+          console.info('AVPlayer state idle called.');
+          break;
+        case 'initialized':
+          console.info('AVPlayer state initialized called.');
+          avPlayer.audioRendererInfo = {
+            usage: audio.StreamUsage.STREAM_USAGE_MUSIC,
+            rendererFlags: 0
+          };
+
+          avPlayer.prepare();
+          break;
+        case 'prepared':
+          console.info('AVPlayer state prepared called.');
+          avPlayer.play();
+          break;
+        case 'playing':
+          console.info('AVPlayer state playing called.');
+          break;
+        case 'paused':
+          console.info('AVPlayer state paused called.');
+          break;
+        case 'completed':
+          console.info('AVPlayer state completed called.');
+          break;
+        case 'stopped':
+          console.info('AVPlayer state stopped called.');
+          break;
+        case 'released':
+          console.info('AVPlayer state released called.');
+          break;
+        default:
+          console.info('AVPlayer state unknown called.');
+          break;
+      }
+    });
   }
 
   build() {
