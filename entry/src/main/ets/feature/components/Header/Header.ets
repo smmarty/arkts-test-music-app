@@ -1,4 +1,5 @@
 import { oppositeThemes, SelectedTheme } from "../../shared/theme";
+import { HeaderCallbacks } from "./Header.types";
 
 const iconThemeButtons: Record<SelectedTheme, string> = {
   [SelectedTheme.Light]: "app.media.dark_mode",
@@ -9,7 +10,7 @@ const iconThemeButtons: Record<SelectedTheme, string> = {
 export struct Header {
   @StorageLink('SelectedTheme') selectedTheme: SelectedTheme = SelectedTheme.Light;
   @Consume('activeTheme') activeTheme: CustomTheme;
-  @Prop navigateBack: (() => void) | undefined;
+  @Prop headerCallbacks: HeaderCallbacks = new HeaderCallbacks({});
 
   private _toggleTheme() {
     this.selectedTheme = oppositeThemes[this.selectedTheme];
@@ -17,8 +18,21 @@ export struct Header {
 
   build() {
     Row() {
-      if (this.navigateBack) {
-        Image($r("app.media.back_arrow")).width(24).height(24).margin({ right: 8 })
+      if (this.headerCallbacks.navigateBack) {
+        Button() {
+          Image($r("app.media.back_arrow"))
+            .width(24)
+            .height(24)
+            .margin({ right: 8 })
+        }
+        .type(ButtonType.Circle)
+        .width(32)
+        .height(32)
+        .padding(4)
+        .backgroundColor(this.selectedTheme === SelectedTheme.Light ? this.activeTheme.colors?.brand : "transparent")
+        .onClick(() => {
+          this.headerCallbacks.navigateBack?.();
+        })
       }
       Text("Harmony").fontSize(20).fontWeight(FontWeight.Bold)
       Button() {
