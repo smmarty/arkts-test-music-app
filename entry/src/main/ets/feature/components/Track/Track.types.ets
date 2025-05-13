@@ -6,7 +6,6 @@ interface ITrackCallbacks {
 
 export class TrackCallbacks implements ITrackCallbacks {
   onTrackSelected?: (track: ITrack) => void;
-  onPlayPause?: () => void;
 
   constructor(params: ITrackCallbacks) {
     this.onTrackSelected = params.onTrackSelected;

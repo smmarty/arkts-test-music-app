@@ -1,8 +1,5 @@
-import { SelectedTheme } from "../../shared/theme";
-
 @Component
 export struct Feature {
-  @StorageLink('SelectedTheme') selectedTheme: SelectedTheme = SelectedTheme.Light;
   @Consume('activeTheme') activeTheme: CustomTheme;
   @Prop assetIconPath: string;
   @Prop text: string;

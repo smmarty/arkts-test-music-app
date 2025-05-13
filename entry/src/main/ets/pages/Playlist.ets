@@ -74,10 +74,6 @@ struct PlaylistPage {
   }
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
-    avPlayer.on('seekDone', (seekDoneTime: number) => {
-      console.info(`AVPlayer seek succeeded, seek time is ${seekDoneTime}`);
-    });
-
     avPlayer.on('error', (err: BusinessError) => {
       console.error(`Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`);
       avPlayer.reset();
@@ -85,11 +81,7 @@ struct PlaylistPage {
 
     avPlayer.on('stateChange', async (state: string, reason: media.StateChangeReason) => {
       switch (state) {
-        case 'idle':
-          console.info('AVPlayer state idle called.');
-          break;
         case 'initialized':
-          console.info('AVPlayer state initialized called.');
           avPlayer.audioRendererInfo = {
             usage: audio.StreamUsage.STREAM_USAGE_MUSIC,
             rendererFlags: 0
@@ -98,26 +90,7 @@ struct PlaylistPage {
           avPlayer.prepare();
           break;
         case 'prepared':
-          console.info('AVPlayer state prepared called.');
           avPlayer.play();
-          break;
-        case 'playing':
-          console.info('AVPlayer state playing called.');
-          break;
-        case 'paused':
-          console.info('AVPlayer state paused called.');
-          break;
-        case 'completed':
-          console.info('AVPlayer state completed called.');
-          break;
-        case 'stopped':
-          console.info('AVPlayer state stopped called.');
-          break;
-        case 'released':
-          console.info('AVPlayer state released called.');
-          break;
-        default:
-          console.info('AVPlayer state unknown called.');
           break;
       }
     });

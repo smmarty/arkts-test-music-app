@@ -41,7 +41,6 @@ struct IndexPage {
           }
           .width("100%")
           .margin({ bottom: 40 })
-
           Button('Next')
             .fontSize(30)
             .type(ButtonType.Capsule)
